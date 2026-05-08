@@ -1,0 +1,167 @@
+﻿@model IEnumerable<CarRentalApp.Models.Entities.Car>
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    var currentUser = ViewBag.CurrentUser as CarRentalApp.Models.Entities.User;
+}
+
+<div class="container mt-4">
+    <div class="row bg-light p-4 rounded shadow-sm mb-4 align-items-center">
+        <div class="col-md-2 text-center">
+            @if (currentUser != null && currentUser.ProfilePicture != null)
+            {
+                string base64String = Convert.ToBase64String(currentUser.ProfilePicture);
+                string imageSrc = $"data:image/jpeg;base64,{base64String}";
+                <img src="@imageSrc" class="rounded-circle img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;" alt="Profil Resmi" />
+            }
+            else
+            {
+                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="rounded-circle img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;" alt="Varsayılan Profil" />
+            }
+        </div>
+        <div class="col-md-7">
+            <h2>Hoş Geldin, @(currentUser?.Username ?? "Misafir")!</h2>
+            <p class="text-muted mb-0">Rol: <span class="badge bg-info">@(currentUser?.Role)</span></p>
+        </div>
+        <div class="col-md-3 text-end d-flex flex-column gap-2">
+            <a asp-controller="Profile" asp-action="Index" class="btn btn-info w-100">Finans Takibi (Gelir/Gider)</a>
+            <a asp-controller="Auth" asp-action="Logout" class="btn btn-danger w-100">Çıkış Yap</a>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-12 d-flex align-items-center justify-content-between">
+            <h3 class="mb-0">Araç Listesi</h3>
+            @if (currentUser?.Role == "Admin")
+            {
+                <a asp-controller="Car" asp-action="Create" class="btn btn-success">+ Yeni Araç Ekle</a>
+            }
+        </div>
+    </div>
+
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body bg-light">
+            <form asp-controller="Home" asp-action="Index" method="get" class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Marka</label>
+                    <input type="text" name="brand" value="@ViewBag.Brand" class="form-control" placeholder="Örn: BMW">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Model</label>
+                    <input type="text" name="model" value="@ViewBag.Model" class="form-control" placeholder="Örn: M5">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Min Fiyat</label>
+                    <input type="number" name="minPrice" value="@ViewBag.MinPrice" class="form-control" placeholder="0">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Max Fiyat</label>
+                    <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" class="form-control" placeholder="5000">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Müsaitlik</label>
+                    <select name="isAvailable" class="form-select">
+                        <option value="">Tümü</option>
+                        <option value="true" selected="@(ViewBag.IsAvailable == true ? "selected" : null)">Sadece Müsaitler</option>
+                        <option value="false" selected="@(ViewBag.IsAvailable == false ? "selected" : null)">Kiradakiler</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Filtrele</button>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">Temizle</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive shadow-sm">
+        <table class="table table-hover table-bordered align-middle bg-white">
+            <thead class="table-dark">
+                <tr>
+                    <th>Resim</th>
+                    <th>Araç Bilgisi</th>
+                    <th>Yükleyen (Sahibi)</th>
+                    <th>Günlük Fiyat</th>
+                    <th>Durum / Müsaitlik</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var car in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (car.Image != null)
+                                {
+                                    string carBase64 = Convert.ToBase64String(car.Image);
+                                    string carImageSrc = $"data:image/jpeg;base64,{carBase64}";
+                                    <img src="@carImageSrc" class="img-thumbnail" style="width: 80px; height: 50px; object-fit: cover;" alt="Araç Resmi" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Resim Yok</span>
+                                }
+                            </td>
+                            
+                            <td>
+                                <strong>@car.Brand</strong><br />
+                                <span class="text-muted small">@car.Model (@car.Year)</span>
+                            </td>
+                            
+                            <td>
+                                <span class="badge bg-secondary">@(car.Owner?.Username ?? "Bilinmiyor")</span>
+                            </td>
+                            
+                            <td>@car.DailyPrice.ToString("C")</td>
+                            
+                            <td>
+                                @if (car.IsAvailable)
+                                {
+                                    <span class="badge bg-success w-100">Hemen Müsait</span>
+                                }
+                                else
+                                {
+                                    <div class="text-center">
+                                        <span class="badge bg-danger w-100 mb-1">Kirada</span>
+                                        <br/>
+                                        <small class="text-muted fw-bold">Dönüş: @(car.Rentals?.OrderByDescending(r => r.EndDate).FirstOrDefault()?.EndDate.ToShortDateString() ?? "Bilinmiyor")</small>
+                                    </div>
+                                }
+                            </td>
+                            
+                            <td>
+                                @if (car.IsAvailable)
+                                {
+                                    <a asp-controller="Rental" asp-action="Create" asp-route-carId="@car.Id" class="btn btn-sm btn-primary">Kirala</a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-secondary" disabled>Kirada</button>
+                                }
+
+                                @if (currentUser?.Role == "Admin")
+                                {
+                                    <a asp-controller="Car" asp-action="Edit" asp-route-id="@car.Id" class="btn btn-sm btn-warning ms-1">Düzenle</a>
+                                    
+                                    <form asp-controller="Car" asp-action="Delete" asp-route-id="@car.Id" method="post" style="display:inline;" onsubmit="return confirm('Bu aracı silmek istediğinize emin misiniz?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger ms-1">Sil</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted p-4">Arama kriterlerine uygun araç bulunamadı.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

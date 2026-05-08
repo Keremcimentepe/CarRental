@@ -1,0 +1,40 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card bg-success text-white mb-3">
+                <div class="card-body">
+                    <h5>Toplam Gelir (Kiralattığım)</h5>
+                    <h2>@ViewBag.TotalIncome.ToString("C")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-danger text-white mb-3">
+                <div class="card-body">
+                    <h5>Toplam Gider (Kiraladığım)</h5>
+                    <h2>@ViewBag.TotalExpense.ToString("C")</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4>Gelir Detayları (Benim Araçlarım)</h4>
+    <table class="table table-striped mb-5">
+        <thead><tr><th>Araç</th><th>Kiralayan</th><th>Tarih</th><th>Kazanç</th></tr></thead>
+        <tbody>
+            @foreach(var r in ViewBag.Incomes) {
+                <tr><td>@r.Car.Brand</td><td>@r.User.Username</td><td>@r.StartDate.ToShortDateString()</td><td>@r.TotalPrice.ToString("C")</td></tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>Gider Detayları (Kiraladıklarım)</h4>
+    <table class="table table-striped">
+        <thead><tr><th>Araç</th><th>Sahibi</th><th>Tarih</th><th>Maliyet</th></tr></thead>
+        <tbody>
+            @foreach(var r in ViewBag.Expenses) {
+                <tr><td>@r.Car.Brand</td><td>@r.Car.Owner.Username</td><td>@r.StartDate.ToShortDateString()</td><td>@r.TotalPrice.ToString("C")</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

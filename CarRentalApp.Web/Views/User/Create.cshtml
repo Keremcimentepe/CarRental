@@ -1,0 +1,52 @@
+@model CarRentalApp.Models.Entities.User
+@{
+    ViewData["Title"] = "Yeni Kullanıcı Kaydı";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Kayıt Ol</h4>
+                </div>
+                <div class="card-body">
+                    
+                    <form asp-controller="User" asp-action="Create" method="post" enctype="multipart/form-data">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Kullanıcı Adı</label>
+                            <input asp-for="Username" class="form-control" required />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Şifre</label>
+                            <input asp-for="Password" type="password" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Hesap Türü (Rol)</label>
+                            <select asp-for="Role" class="form-select">
+                                <option value="User">Normal Kullanıcı</option>
+                                <option value="Admin">Sistem Yöneticisi</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Profil Resmi (İsteğe Bağlı)</label>
+                            <input type="file" name="profileImage" class="form-control" accept="image/*" />
+                            <small class="text-muted">Resim doğrudan veritabanına BLOB olarak kaydedilecektir.</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Kaydı Tamamla</button>
+                            <a href="/Auth/Login" class="btn btn-outline-secondary">Zaten hesabım var, giriş yap</a>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

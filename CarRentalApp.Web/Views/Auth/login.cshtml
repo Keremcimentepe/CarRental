@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Sisteme Giriş";
+    Layout = null; // Giriş ekranında genel menüleri göstermemek için
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giriş Yap - Araç Kiralama</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+
+    <div class="card shadow" style="width: 400px;">
+        <div class="card-body">
+            <h3 class="text-center mb-4">Sisteme Giriş</h3>
+            
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @ViewBag.ErrorMessage
+                </div>
+            }
+
+            <form asp-controller="Auth" asp-action="Login" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Kullanıcı Adı</label>
+                    <input type="text" name="username" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Şifre</label>
+                    <input type="password" name="password" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+                <<hr />
+<div class="text-center">
+    <p class="mb-1">Henüz hesabınız yok mu?</p>
+    <a asp-controller="User" asp-action="Create" class="btn btn-outline-success w-100">Yeni Hesap Oluştur / Kayıt Ol</a>
+</div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

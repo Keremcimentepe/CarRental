@@ -1,0 +1,56 @@
+using CarRentalApp.DataAccess.Context;
+using CarRentalApp.DataAccess.Repositories;
+using CarRentalApp.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore; // Gerekli
+
+namespace CarRentalApp.Business.Services;
+
+public class CarService : ICarService
+{
+    private readonly IRepository<Car> _carRepository;
+    private readonly AppDbContext _context;
+
+    public CarService(IRepository<Car> carRepository, AppDbContext context)
+    {
+        _carRepository = carRepository;
+        _context = context;
+    }
+
+    public async Task<IEnumerable<Car>> GetAllCarsAsync() => await _carRepository.GetAllAsync();
+    public async Task<Car> GetCarByIdAsync(int id) => await _carRepository.GetByIdAsync(id);
+    public async Task AddCarAsync(Car car) => await _carRepository.AddAsync(car);
+    public async Task UpdateCarAsync(Car car) => await _carRepository.UpdateAsync(car);
+    public async Task DeleteCarAsync(int id) => await _carRepository.DeleteAsync(id);
+
+    public async Task<IEnumerable<Car>> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable)
+{
+    // Veritabanından araçları, sahiplerini (Owner) ve kiralamalarını (Rentals) da dahil ederek çekiyoruz
+    var query = _context.Cars
+        .Include(c => c.Owner)
+        .Include(c => c.Rentals)
+        .AsQueryable();
+
+    // ESKİ KODLARINI BUNLARLA DEĞİŞTİR:
+
+if (!string.IsNullOrWhiteSpace(brand))
+    query = query.Where(c => c.Brand.ToLower().Contains(brand.ToLower()));
+
+if (!string.IsNullOrWhiteSpace(model))
+    query = query.Where(c => c.Model.ToLower().Contains(model.ToLower()));
+
+    if (minPrice.HasValue)
+        query = query.Where(c => c.DailyPrice >= minPrice.Value);
+
+    if (maxPrice.HasValue)
+        query = query.Where(c => c.DailyPrice <= maxPrice.Value);
+
+    if (isAvailable.HasValue)
+        query = query.Where(c => c.IsAvailable == isAvailable.Value);
+
+    return await query.ToListAsync();
+}
+}

@@ -1,0 +1,44 @@
+@{
+    var car = ViewBag.Car as CarRentalApp.Models.Entities.Car;
+    ViewData["Title"] = "Araç Kirala";
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4>@car.Brand @car.Model Kirala</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    @if (car.Image != null)
+                    {
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(car.Image)" class="img-fluid rounded" />
+                    }
+                </div>
+                <div class="col-md-8">
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" name="carId" value="@car.Id" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Başlangıç Tarihi</label>
+                            <input type="date" name="startDate" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Bitiş Tarihi</label>
+                            <input type="date" name="endDate" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        </div>
+
+                        <div class="alert alert-info">
+                            Günlük Ücret: <strong>@car.DailyPrice.ToString("C")</strong>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100">Kiralamayı Onayla</button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-link w-100 mt-2">Vazgeç</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

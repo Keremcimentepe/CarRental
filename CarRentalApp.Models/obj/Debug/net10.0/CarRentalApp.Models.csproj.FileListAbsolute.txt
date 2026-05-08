@@ -1,0 +1,12 @@
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/bin/Debug/net10.0/CarRentalApp.Models.deps.json
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/bin/Debug/net10.0/CarRentalApp.Models.dll
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/bin/Debug/net10.0/CarRentalApp.Models.pdb
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/CarRentalApp.Models.GeneratedMSBuildEditorConfig.editorconfig
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/CarRentalApp.Models.AssemblyInfoInputs.cache
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/CarRentalApp.Models.AssemblyInfo.cs
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/CarRentalApp.Models.csproj.CoreCompileInputs.cache
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/CarRentalApp.Models.dll
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/refint/CarRentalApp.Models.dll
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/CarRentalApp.Models.pdb
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/ref/CarRentalApp.Models.dll
+/home/Kerem/Ders/Web Programlama/WebProje/CarRentalApp.Models/obj/Debug/net10.0/CarRentalApp.Models.sourcelink.json
