@@ -1,40 +1,92 @@
+@{
+    ViewData["Title"] = "Finans ve Takip";
+    string role = ViewBag.Role as string;
+}
+
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card bg-success text-white mb-3">
-                <div class="card-body">
-                    <h5>Toplam Gelir (Kiralattığım)</h5>
-                    <h2>@ViewBag.TotalIncome.ToString("C")</h2>
+    
+    @if (role == "Admin")
+    {
+        <!-- ADMIN DASHBOARD -->
+        <h2 class="mb-4">Sistem Genel İşlem Geçmişi</h2>
+        <div class="card bg-dark text-white mb-4 shadow">
+            <div class="card-body">
+                <h5>Platform Toplam Hacmi</h5>
+                <h2>@ViewBag.TotalSystemVolume.ToString("C")</h2>
+            </div>
+        </div>
+
+        <div class="table-responsive shadow-sm">
+            <table class="table table-hover table-bordered bg-white">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Araç</th>
+                        <th>Sahibi (Kiralayan)</th>
+                        <th>Müşteri (Kiralayan)</th>
+                        <th>Başlangıç</th>
+                        <th>Bitiş</th>
+                        <th>Tutar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var r in ViewBag.AllTransactions) {
+                        <tr>
+                            <td><strong>@r.Car.Brand</strong> @r.Car.Model</td>
+                            <td><span class="badge bg-secondary">@r.Car.Owner.Username</span></td>
+                            <td><span class="badge bg-primary">@r.User.Username</span></td>
+                            <td>@r.StartDate.ToShortDateString()</td>
+                            <td>@r.EndDate.ToShortDateString()</td>
+                            <td class="text-success fw-bold">@r.TotalPrice.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <!-- KİRALAYICI / USER DASHBOARD -->
+        <h2 class="mb-4">Finansal Durumum</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card bg-success text-white mb-3 shadow">
+                    <div class="card-body">
+                        <h5>Toplam Gelir (Kiralattığım)</h5>
+                        <h2>@ViewBag.TotalIncome.ToString("C")</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-danger text-white mb-3 shadow">
+                    <div class="card-body">
+                        <h5>Toplam Gider (Kiraladığım)</h5>
+                        <h2>@ViewBag.TotalExpense.ToString("C")</h2>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card bg-danger text-white mb-3">
-                <div class="card-body">
-                    <h5>Toplam Gider (Kiraladığım)</h5>
-                    <h2>@ViewBag.TotalExpense.ToString("C")</h2>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <h4>Gelir Detayları (Benim Araçlarım)</h4>
-    <table class="table table-striped mb-5">
-        <thead><tr><th>Araç</th><th>Kiralayan</th><th>Tarih</th><th>Kazanç</th></tr></thead>
-        <tbody>
-            @foreach(var r in ViewBag.Incomes) {
-                <tr><td>@r.Car.Brand</td><td>@r.User.Username</td><td>@r.StartDate.ToShortDateString()</td><td>@r.TotalPrice.ToString("C")</td></tr>
-            }
-        </tbody>
-    </table>
+        @if (role == "Kiralayıcı")
+        {
+            <h4 class="mt-4">Gelir Detayları (Benim Araçlarım)</h4>
+            <table class="table table-striped bg-white shadow-sm">
+                <thead class="table-success"><tr><th>Araç</th><th>Kiralayan</th><th>Tarih</th><th>Kazanç</th></tr></thead>
+                <tbody>
+                    @foreach(var r in ViewBag.Incomes) {
+                        <tr><td>@r.Car.Brand</td><td>@r.User.Username</td><td>@r.StartDate.ToShortDateString()</td><td>@r.TotalPrice.ToString("C")</td></tr>
+                    }
+                </tbody>
+            </table>
+        }
 
-    <h4>Gider Detayları (Kiraladıklarım)</h4>
-    <table class="table table-striped">
-        <thead><tr><th>Araç</th><th>Sahibi</th><th>Tarih</th><th>Maliyet</th></tr></thead>
-        <tbody>
-            @foreach(var r in ViewBag.Expenses) {
-                <tr><td>@r.Car.Brand</td><td>@r.Car.Owner.Username</td><td>@r.StartDate.ToShortDateString()</td><td>@r.TotalPrice.ToString("C")</td></tr>
-            }
-        </tbody>
-    </table>
+        <h4 class="mt-4">Gider Detayları (Kiraladıklarım)</h4>
+        <table class="table table-striped bg-white shadow-sm mb-5">
+            <thead class="table-danger"><tr><th>Araç</th><th>Sahibi</th><th>Tarih</th><th>Maliyet</th></tr></thead>
+            <tbody>
+                @foreach(var r in ViewBag.Expenses) {
+                    <tr><td>@r.Car.Brand</td><td>@r.Car.Owner.Username</td><td>@r.StartDate.ToShortDateString()</td><td>@r.TotalPrice.ToString("C")</td></tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>

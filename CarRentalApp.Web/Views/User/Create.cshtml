@@ -27,7 +27,8 @@
                         <div class="mb-3">
                             <label class="form-label">Hesap Türü (Rol)</label>
                             <select asp-for="Role" class="form-select">
-                                <option value="User">Normal Kullanıcı</option>
+                                <option value="User">Normal Kullanıcı (Araç Kiralayabilir)</option>
+                                <option value="Kiralayıcı">Kiralayıcı (Araç Ekleyebilir ve Kiralayabilir)</option>
                                 <option value="Admin">Sistem Yöneticisi</option>
                             </select>
                         </div>

@@ -26,20 +26,30 @@ public class ProfileController : Controller
     if (string.IsNullOrEmpty(userIdString)) return RedirectToAction("Login", "Auth");
 
     var userId = int.Parse(userIdString);
-    
-    // Servisi çağırıyoruz
+    var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
     var allRentals = await _rentalService.GetAllRentalsAsync();
+    
+    // View tarafında rolü bilmek için ViewBag'e atıyoruz
+    ViewBag.Role = role;
 
-    // Gider: Benim kiraladıklarım
-    var myExpenses = allRentals.Where(r => r.UserId == userId).ToList();
+    if (role == "Admin")
+    {
+        // Admin tüm sistemi görür
+        ViewBag.AllTransactions = allRentals.OrderByDescending(r => r.StartDate).ToList();
+        ViewBag.TotalSystemVolume = allRentals.Sum(r => r.TotalPrice);
+    }
+    else
+    {
+        // Kiralayıcı ve User sadece kendi işlemlerini görür
+        var myExpenses = allRentals.Where(r => r.UserId == userId).ToList();
+        var myIncomes = allRentals.Where(r => r.Car != null && r.Car.OwnerId == userId).ToList();
 
-    // Gelir: Benim arabalarımı kiralayanlar
-    var myIncomes = allRentals.Where(r => r.Car != null && r.Car.OwnerId == userId).ToList();
-
-    ViewBag.TotalIncome = myIncomes.Sum(r => r.TotalPrice);
-    ViewBag.TotalExpense = myExpenses.Sum(r => r.TotalPrice);
-    ViewBag.Incomes = myIncomes;
-    ViewBag.Expenses = myExpenses;
+        ViewBag.TotalIncome = myIncomes.Sum(r => r.TotalPrice);
+        ViewBag.TotalExpense = myExpenses.Sum(r => r.TotalPrice);
+        ViewBag.Incomes = myIncomes;
+        ViewBag.Expenses = myExpenses;
+    }
 
     return View();
 }
