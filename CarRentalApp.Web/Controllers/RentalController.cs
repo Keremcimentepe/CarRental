@@ -22,6 +22,8 @@ public class RentalController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(int carId)
     {
+        if (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value == "Admin") 
+        return RedirectToAction("Index", "Home");
         var car = await _carService.GetCarByIdAsync(carId);
         if (car == null || !car.IsAvailable) return RedirectToAction("Index", "Home");
 
@@ -30,19 +32,47 @@ public class RentalController : Controller
     }
 
     [HttpPost]
+[HttpPost]
 public async Task<IActionResult> Create(int carId, DateTime startDate, DateTime endDate)
 {
     var car = await _carService.GetCarByIdAsync(carId);
-    var userId = int.Parse(User.FindFirst("UserId").Value);
+    var userIdString = User.FindFirst("UserId")?.Value;
+    
+    if (string.IsNullOrEmpty(userIdString)) return RedirectToAction("Login", "Auth");
+    var userId = int.Parse(userIdString);
 
-    // ÇÖZÜM: HTML'den gelen tarihleri PostgreSQL için UTC formatına çeviriyoruz
-    startDate = DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
-    endDate = DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
+    // PostgreSQL için UTC formatına çeviriyoruz
+    startDate = DateTime.SpecifyKind(startDate.Date, DateTimeKind.Utc);
+    endDate = DateTime.SpecifyKind(endDate.Date, DateTimeKind.Utc);
+    DateTime todayUtc = DateTime.SpecifyKind(DateTime.Now.Date, DateTimeKind.Utc);
 
-    // Gün farkını hesapla ve toplam fiyatı belirle
+    // --- 1. KURAL: Başlangıç tarihi bugünden itibaren en fazla 3 gün sonra olabilir ---
+    int daysUntilStart = (startDate - todayUtc).Days;
+    if (daysUntilStart < 0 || daysUntilStart > 3)
+    {
+        ViewBag.Car = car;
+        ViewBag.ErrorMessage = "Hata: Kiralama başlangıç tarihi bugünden itibaren en fazla 3 gün içerisinde olmalıdır!";
+        return View();
+    }
+
+    // --- 2. KURAL: Bitiş tarihi, başlangıç tarihinden önce veya aynı olamaz ---
+    if (endDate <= startDate)
+    {
+        ViewBag.Car = car;
+        ViewBag.ErrorMessage = "Hata: Bitiş tarihi, başlangıç tarihinden en az 1 gün sonra olmalıdır!";
+        return View();
+    }
+
+    // --- 3. KURAL: Maksimum 30 gün kiralama yapılabilir ---
     int days = (endDate - startDate).Days;
-    if (days <= 0) days = 1;
+    if (days > 30)
+    {
+        ViewBag.Car = car;
+        ViewBag.ErrorMessage = "Hata: Bir aracı tek seferde en fazla 30 gün kiralayabilirsiniz!";
+        return View();
+    }
 
+    // Tüm kontrollerden geçtiyse kiralama kaydını oluştur
     var rental = new Rental
     {
         CarId = carId,
