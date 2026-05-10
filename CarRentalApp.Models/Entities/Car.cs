@@ -10,7 +10,7 @@ public class Car
     public int Year { get; set; }
     public decimal DailyPrice { get; set; }
     public bool IsAvailable { get; set; }
-    public byte[] Image { get; set; } 
+    public byte[]? Image { get; set; } // Sonuna ? eklendi
     
     public int OwnerId { get; set; } 
     public User Owner { get; set; }
