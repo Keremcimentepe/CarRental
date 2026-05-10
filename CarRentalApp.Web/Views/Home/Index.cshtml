@@ -5,18 +5,17 @@
 }
 
 <div class="container mt-4">
-    <!-- Kullanıcı Karşılama Alanı -->
     <div class="row bg-light p-4 rounded shadow-sm mb-4 align-items-center">
         <div class="col-md-2 text-center">
-            @if (currentUser != null && currentUser.ProfilePicture != null)
+            @if (currentUser != null && currentUser.ProfilePicture != null && currentUser.ProfilePicture.Length > 0)
             {
                 string base64String = Convert.ToBase64String(currentUser.ProfilePicture);
                 string imageSrc = $"data:image/jpeg;base64,{base64String}";
-                <img src="@imageSrc" class="rounded-circle img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;" alt="Profil Resmi" />
+                <img src="@imageSrc" class="rounded-circle img-thumbnail shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" alt="Profil Resmi" />
             }
             else
             {
-                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="rounded-circle img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;" alt="Varsayılan Profil" />
+                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="rounded-circle img-thumbnail shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" alt="Varsayılan Profil" />
             }
         </div>
         <div class="col-md-7">
@@ -31,11 +30,9 @@
 
     <hr />
 
-    <!-- Arama ve Araç Ekleme Başlığı -->
     <div class="row mb-3 align-items-center">
         <div class="col-md-12 d-flex align-items-center justify-content-between">
             <h3 class="mb-0">Araç Listesi</h3>
-            <!-- SADECE KİRALAYICI ARAÇ EKLEYEBİLİR -->
             @if (currentUser?.Role == "Kiralayıcı")
             {
                 <a asp-controller="Car" asp-action="Create" class="btn btn-success">+ Yeni Araç Ekle</a>
@@ -43,7 +40,6 @@
         </div>
     </div>
 
-    <!-- Gelişmiş Filtreleme Formu -->
     <div class="card mb-4 border-0 shadow-sm">
         <div class="card-body bg-light">
             <form asp-controller="Home" asp-action="Index" method="get" class="row g-3 align-items-end">
@@ -79,7 +75,6 @@
         </div>
     </div>
 
-    <!-- Araçlar Tablosu -->
     <div class="table-responsive shadow-sm">
         <table class="table table-hover table-bordered align-middle bg-white">
             <thead class="table-dark">
@@ -98,35 +93,32 @@
                     foreach (var car in Model)
                     {
                         <tr>
-                            <!-- Resim -->
                             <td>
-                                @if (car.Image != null)
+                                @if (car.Image != null && car.Image.Length > 0)
                                 {
                                     string carBase64 = Convert.ToBase64String(car.Image);
                                     string carImageSrc = $"data:image/jpeg;base64,{carBase64}";
-                                    <img src="@carImageSrc" class="img-thumbnail" style="width: 80px; height: 50px; object-fit: cover;" alt="Araç Resmi" />
+                                    <img src="@carImageSrc" class="img-thumbnail shadow-sm" style="width: 80px; height: 50px; object-fit: cover;" alt="Araç Resmi" />
                                 }
                                 else
                                 {
-                                    <span class="text-muted small">Resim Yok</span>
+                                    <div class="d-flex align-items-center justify-content-center bg-light rounded shadow-sm" style="width: 80px; height: 50px; border: 1px dashed #ccc;">
+                                        <small class="text-muted" style="font-size: 10px;">RESİM YOK</small>
+                                    </div>
                                 }
                             </td>
                             
-                            <!-- Araç Bilgisi -->
                             <td>
                                 <strong>@car.Brand</strong><br />
                                 <span class="text-muted small">@car.Model (@car.Year)</span>
                             </td>
                             
-                            <!-- Yükleyen -->
                             <td>
                                 <span class="badge bg-secondary">@(car.Owner?.Username ?? "Bilinmiyor")</span>
                             </td>
                             
-                            <!-- Fiyat -->
                             <td>@car.DailyPrice.ToString("C")</td>
                             
-                            <!-- Durum / Müsaitlik -->
                             <td>
                                 @if (car.IsAvailable)
                                 {
@@ -142,9 +134,7 @@
                                 }
                             </td>
                             
-                            <!-- İşlemler -->
                             <td>
-                                <!-- KİRALAMA BUTONU: Admin Göremez, Kiralayıcı ve User görür -->
                                 @if (currentUser?.Role != "Admin")
                                 {
                                     if (car.IsAvailable)
@@ -157,7 +147,6 @@
                                     }
                                 }
 
-                                <!-- DÜZENLE/SİL BUTONLARI: Sadece Admin veya Aracın Sahibi görebilir -->
                                 @if (currentUser?.Role == "Admin" || (currentUser?.Role == "Kiralayıcı" && car.OwnerId == currentUser?.Id))
                                 {
                                     <a asp-controller="Car" asp-action="Edit" asp-route-id="@car.Id" class="btn btn-sm btn-warning ms-1">Düzenle</a>

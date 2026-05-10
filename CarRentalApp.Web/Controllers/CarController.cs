@@ -32,33 +32,38 @@ public class CarController : Controller
 
     // --- YENİ ARAÇ EKLEME (POST) ---
     [HttpPost]
-    public async Task<IActionResult> Create(Car car, IFormFile carImage)
+public async Task<IActionResult> Create(Car car, IFormFile carImage)
+{
+    var role = User.FindFirst(ClaimTypes.Role)?.Value;
+    if (role != "Kiralayıcı") return RedirectToAction("Index", "Home");
+
+    // --- YENİ EKLENEN KURAL: ARAÇ RESMİ ZORUNLUDUR ---
+    if (carImage == null || carImage.Length == 0)
     {
-        var role = User.FindFirst(ClaimTypes.Role)?.Value;
-        if (role != "Kiralayıcı") return RedirectToAction("Index", "Home");
-
-        var userIdClaim = User.FindFirst("UserId")?.Value;
-        if (userIdClaim != null)
-        {
-            car.OwnerId = int.Parse(userIdClaim);
-        }
-        else
-        {
-            return RedirectToAction("Login", "Auth");
-        }
-
-        if (carImage != null && carImage.Length > 0)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                await carImage.CopyToAsync(memoryStream);
-                car.Image = memoryStream.ToArray();
-            }
-        }
-
-        await _carService.AddCarAsync(car);
-        return RedirectToAction("Index", "Home");
+        ViewBag.ErrorMessage = "Araç eklemek için bir fotoğraf yüklemek zorunludur!";
+        return View(car); // Hata mesajıyla birlikte ekleme sayfasına geri yolla
     }
+
+    var userIdClaim = User.FindFirst("UserId")?.Value;
+    if (userIdClaim != null)
+    {
+        car.OwnerId = int.Parse(userIdClaim);
+    }
+    else
+    {
+        return RedirectToAction("Login", "Auth");
+    }
+
+    // Resim hafızaya alınıyor
+    using (var memoryStream = new MemoryStream())
+    {
+        await carImage.CopyToAsync(memoryStream);
+        car.Image = memoryStream.ToArray();
+    }
+
+    await _carService.AddCarAsync(car);
+    return RedirectToAction("Index", "Home");
+}
 
     // --- ARAÇ GÜNCELLEME (GET) ---
     [HttpGet]
