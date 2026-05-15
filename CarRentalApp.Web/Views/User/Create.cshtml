@@ -3,44 +3,51 @@
     ViewData["Title"] = "Yeni Kullanıcı Kaydı";
 }
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">Kayıt Ol</h4>
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white py-3 text-center">
+                    <h4 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Sisteme Kayıt Ol</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     
+                    @if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger fw-bold shadow-sm" role="alert">
+                            ⚠️ @ViewBag.ErrorMessage
+                        </div>
+                    }
+
                     <form asp-controller="User" asp-action="Create" method="post" enctype="multipart/form-data">
                         
                         <div class="mb-3">
-                            <label class="form-label">Kullanıcı Adı</label>
-                            <input asp-for="Username" class="form-control" required />
+                            <label class="form-label fw-bold text-secondary">Kullanıcı Adı</label>
+                            <input asp-for="Username" class="form-control form-control-lg" required minlength="3" maxlength="20" placeholder="Min 3, Max 20 karakter" />
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Şifre</label>
-                            <input asp-for="Password" type="password" class="form-control" required />
+                            <label class="form-label fw-bold text-secondary">Şifre</label>
+                            <input asp-for="Password" type="password" class="form-control form-control-lg" required minlength="6" maxlength="20" placeholder="Min 6, Max 20 karakter" />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Hesap Türü (Rol)</label>
-                            <select asp-for="Role" class="form-select">
-                                <option value="User">Normal Kullanıcı (Araç Kiralayabilir)</option>
+                            <label class="form-label fw-bold text-secondary">Hesap Türü (Rol)</label>
+                            <select asp-for="Role" class="form-select form-select-lg">
+                                <option value="User">Normal Kullanıcı (Sadece Kiralayabilir)</option>
                                 <option value="Kiralayıcı">Kiralayıcı (Araç Ekleyebilir ve Kiralayabilir)</option>
                                 <option value="Admin">Sistem Yöneticisi</option>
                             </select>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label">Profil Resmi (İsteğe Bağlı)</label>
+                        <div class="mb-4 p-3 bg-light border rounded-3">
+                            <label class="form-label fw-bold text-secondary">Profil Resmi (İsteğe Bağlı)</label>
                             <input type="file" name="profileImage" class="form-control" accept="image/*" />
-                            <small class="text-muted">Resim doğrudan veritabanına BLOB olarak kaydedilecektir.</small>
+                            <small class="text-muted d-block mt-1">Yüklediğiniz resim veritabanında güvenli BLOB formatında saklanacaktır.</small>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">Kaydı Tamamla</button>
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">Kaydı Tamamla</button>
                             <a href="/Auth/Login" class="btn btn-outline-secondary">Zaten hesabım var, giriş yap</a>
                         </div>
 

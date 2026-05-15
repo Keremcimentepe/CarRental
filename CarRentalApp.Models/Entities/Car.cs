@@ -17,4 +17,5 @@ public class Car
 
     // EKSİK OLAN SATIR BURASI (Aracın kiralama geçmişi)
     public ICollection<Rental> Rentals { get; set; } 
+    public bool IsApproved { get; set; } = false; // Varsayılan olarak onay bekliyor
 }

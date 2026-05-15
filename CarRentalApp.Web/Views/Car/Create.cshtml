@@ -3,18 +3,18 @@
     ViewData["Title"] = "Yeni Araç Ekle";
 }
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">Sisteme Yeni Araç Ekle</h4>
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-success text-white py-3">
+                    <h4 class="mb-0"><i class="bi bi-car-front-fill me-2"></i>Sisteme Yeni Araç Ekle</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     
                     @if (ViewBag.ErrorMessage != null)
                     {
-                        <div class="alert alert-danger fw-bold" role="alert">
+                        <div class="alert alert-danger fw-bold shadow-sm" role="alert">
                             ⚠️ @ViewBag.ErrorMessage
                         </div>
                     }
@@ -22,40 +22,40 @@
                     <form asp-controller="Car" asp-action="Create" method="post" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Marka</label>
+                                <label class="form-label fw-bold text-secondary">Marka</label>
                                 <input asp-for="Brand" class="form-control" placeholder="Örn: BMW" required />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Model</label>
+                                <label class="form-label fw-bold text-secondary">Model</label>
                                 <input asp-for="Model" class="form-control" placeholder="Örn: 320i" required />
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Üretim Yılı</label>
-                                <input asp-for="Year" type="number" class="form-control" required />
+                                <label class="form-label fw-bold text-secondary">Üretim Yılı</label>
+                                <input asp-for="Year" type="number" class="form-control" min="1980" max="2026" placeholder="1980 - 2026" required />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Günlük Kiralama Fiyatı (₺)</label>
-                                <input asp-for="DailyPrice" type="number" step="0.01" class="form-control" required />
+                                <label class="form-label fw-bold text-secondary">Günlük Kiralama Fiyatı (₺)</label>
+                                <input asp-for="DailyPrice" type="number" step="0.01" class="form-control" min="1000" max="100000" placeholder="1.000 - 100.000" required />
                             </div>
                         </div>
 
-                        <div class="mb-4 p-3 bg-light border rounded">
+                        <div class="mb-4 p-3 bg-light border border-danger rounded-3">
                             <label class="form-label fw-bold text-danger">Araç Fotoğrafı (Zorunlu)</label>
-                            <input type="file" name="carImage" class="form-control border-danger" accept="image/*" required />
-                            <small class="text-muted">Lütfen aracın net bir fotoğrafını yükleyin.</small>
+                            <input type="file" name="carImage" class="form-control" accept="image/*" required />
+                            <small class="text-muted d-block mt-1">Lütfen aracın net bir fotoğrafını yükleyin.</small>
                         </div>
 
-                        <div class="form-check mb-4">
-                            <input asp-for="IsAvailable" class="form-check-input" type="checkbox" checked />
-                            <label class="form-check-label fw-bold">Araç Şu An Kiralamaya Müsait</label>
+                        <div class="form-check form-switch mb-4 fs-5">
+                            <input asp-for="IsAvailable" class="form-check-input" type="checkbox" checked id="flexSwitchCheckChecked" />
+                            <label class="form-check-label fw-bold text-success" for="flexSwitchCheckChecked">Araç Şu An Kiralamaya Müsait</label>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">Aracı Kaydet ve Yayınla</button>
-                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">İptal Et</a>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg px-4">İptal</a>
+                            <button type="submit" class="btn btn-success btn-lg px-5">Kaydet ve Yayınla</button>
                         </div>
                     </form>
                 </div>

@@ -11,6 +11,8 @@ public interface ICarService
     Task AddCarAsync(Car car);
     Task UpdateCarAsync(Car car);
     Task DeleteCarAsync(int id);
+    Task<IEnumerable<Car>> GetPendingCarsAsync();
+    Task ApproveCarAsync(int id);
     
     // Proje isterindeki "Gelişmiş Arama İşlemi" için güncellenen metodumuz
     Task<IEnumerable<Car>> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable);

@@ -1,6 +1,53 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Proje Hakkında";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container mt-5 mb-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">Proje Detayları ve Mimari Yapı</h1>
+        <p class="lead text-muted">Bu web uygulaması, modern web geliştirme standartlarına ve katmanlı mimari prensiplerine sadık kalınarak geliştirilmiştir.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 border-start border-primary border-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">🛠️ Katmanlı Mimari (N-Tier)</h5>
+                    <p class="card-text text-muted">Projemiz Data Access (Veri Erişimi), Business (İş Kuralları), Models (Varlıklar) ve Web (Sunum) olmak üzere birbirinden bağımsız 4 katman üzerinde inşa edilmiştir. Dependency Injection ve Repository Pattern kullanılmıştır.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 border-start border-success border-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">💾 BLOB Resim Yönetimi</h5>
+                    <p class="card-text text-muted">Kullanıcı profilleri ve araçlara ait fotoğraflar sunucu klasörlerinde değil, doğrudan PostgreSQL veritabanında <code>bytea (BLOB)</code> formatında şifrelenmiş olarak tutulmaktadır.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 border-start border-warning border-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">🔐 Rol Bazlı Yetkilendirme</h5>
+                    <p class="card-text text-muted">Sistemde 3 farklı rol bulunmaktadır: Admin (Sistem Yöneticisi), Kiralayıcı (Araç Sahibi) ve User (Müşteri). Her rolün erişebildiği sayfalar, butonlar ve CRUD yetkileri arka planda sıkı bir şekilde denetlenmektedir.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 border-start border-info border-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">📊 Dinamik Filtreleme ve Finans</h5>
+                    <p class="card-text text-muted">Araçlar marka, model, fiyat aralığı ve müsaitlik durumuna göre anlık filtrelenebilir. Ayrıca kullanıcılar "Gelir/Gider" ekranından platform üzerindeki tüm finansal hareketlerini takip edebilirler.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5 text-center text-muted">
+        <hr />
+        <p><small>Geliştirme Ortamı: ASP.NET Core 8.0 MVC & PostgreSQL | Entity Framework Core (Code-First)</small></p>
+    </div>
+</div>
