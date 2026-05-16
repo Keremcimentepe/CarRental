@@ -7,12 +7,17 @@
     
     @if (role == "Admin")
     {
-        <!-- ADMIN DASHBOARD -->
         <h2 class="mb-4">Sistem Genel İşlem Geçmişi</h2>
         <div class="card bg-dark text-white mb-4 shadow">
             <div class="card-body">
                 <h5>Platform Toplam Hacmi</h5>
                 <h2>@ViewBag.TotalSystemVolume.ToString("C")</h2>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-md-6 offset-md-3">
+                <canvas id="financeChart"></canvas>
             </div>
         </div>
 
@@ -45,7 +50,6 @@
     }
     else
     {
-        <!-- KİRALAYICI / USER DASHBOARD -->
         <h2 class="mb-4">Finansal Durumum</h2>
         <div class="row">
             <div class="col-md-6">
@@ -63,6 +67,12 @@
                         <h2>@ViewBag.TotalExpense.ToString("C")</h2>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="row mb-5 mt-4">
+            <div class="col-md-4 offset-md-4">
+                <canvas id="financeChart"></canvas>
             </div>
         </div>
 
@@ -90,3 +100,49 @@
         </table>
     }
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('financeChart').getContext('2d');
+        
+        var role = '@role';
+        var chartLabels = [];
+        var chartData = [];
+        var chartColors = [];
+
+        if (role === 'Admin') {
+            chartLabels = ['Platform Toplam Hacmi'];
+            // C# Decimal değerlerini JS Float'a çeviriyoruz
+            var totalVol = parseFloat('@ViewBag.TotalSystemVolume'.replace(',', '.'));
+            chartData = [totalVol];
+            chartColors = ['#212529'];
+        } else {
+            chartLabels = ['Toplam Gelir', 'Toplam Gider'];
+            // C# Decimal değerlerini JS Float'a çeviriyoruz
+            var totalInc = parseFloat('@ViewBag.TotalIncome'.replace(',', '.'));
+            var totalExp = parseFloat('@ViewBag.TotalExpense'.replace(',', '.'));
+            chartData = [totalInc, totalExp];
+            chartColors = ['#198754', '#dc3545'];
+        }
+
+        var financeChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    data: chartData,
+                    backgroundColor: chartColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    title: { display: true, text: 'Finansal Dağılım Grafiği', font: { size: 16 } }
+                }
+            }
+        });
+    });
+</script>

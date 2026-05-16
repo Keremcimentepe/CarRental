@@ -34,7 +34,20 @@ public class CarController : Controller
     [HttpPost]
 public async Task<IActionResult> Create(Car car, IFormFile carImage)
 {
+    // --- ARAÇ YIL VE FİYAT KONTROLÜ ---
+if (car.Year < 1980 || car.Year > 2026)
+{
+    ViewBag.ErrorMessage = "Araç üretim yılı 1980 ile 2026 arasında olmalıdır!";
+    return View(car);
+}
+
+if (car.DailyPrice < 1000 || car.DailyPrice > 100000)
+{
+    ViewBag.ErrorMessage = "Araç kiralama fiyatı günlük 1.000 ₺ ile 100.000 ₺ arasında olmalıdır!";
+    return View(car);
+}
     var role = User.FindFirst(ClaimTypes.Role)?.Value;
+    car.IsApproved = false;
     if (role != "Kiralayıcı") return RedirectToAction("Index", "Home");
 
     // --- YENİ EKLENEN KURAL: ARAÇ RESMİ ZORUNLUDUR ---
@@ -64,6 +77,26 @@ public async Task<IActionResult> Create(Car car, IFormFile carImage)
     await _carService.AddCarAsync(car);
     return RedirectToAction("Index", "Home");
 }
+// --- ADMİN ONAY EKRANI ---
+[HttpGet]
+public async Task<IActionResult> Pending()
+{
+    var role = User.FindFirst(ClaimTypes.Role)?.Value;
+    if (role != "Admin") return RedirectToAction("Index", "Home");
+
+    var pendingCars = await _carService.GetPendingCarsAsync();
+    return View(pendingCars);
+}
+
+[HttpPost]
+public async Task<IActionResult> Approve(int id)
+{
+    var role = User.FindFirst(ClaimTypes.Role)?.Value;
+    if (role != "Admin") return RedirectToAction("Index", "Home");
+
+    await _carService.ApproveCarAsync(id);
+    return RedirectToAction("Pending"); // Onaylayıp listeye geri dön
+}
 
     // --- ARAÇ GÜNCELLEME (GET) ---
     [HttpGet]
@@ -85,6 +118,18 @@ public async Task<IActionResult> Create(Car car, IFormFile carImage)
     [HttpPost]
     public async Task<IActionResult> Edit(Car car, IFormFile carImage)
     {
+        // --- ARAÇ YIL VE FİYAT KONTROLÜ ---
+if (car.Year < 1980 || car.Year > 2026)
+{
+    ViewBag.ErrorMessage = "Araç üretim yılı 1980 ile 2026 arasında olmalıdır!";
+    return View(car);
+}
+
+if (car.DailyPrice < 1000 || car.DailyPrice > 100000)
+{
+    ViewBag.ErrorMessage = "Araç kiralama fiyatı günlük 1.000 ₺ ile 100.000 ₺ arasında olmalıdır!";
+    return View(car);
+}
         var existingCar = await _carService.GetCarByIdAsync(car.Id);
         if (existingCar == null) return NotFound();
 
