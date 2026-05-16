@@ -128,6 +128,18 @@
                             <td>
                                 <strong style="font-size: 1.1rem;">@car.Brand</strong><br />
                                 <span class="text-muted">@car.Model (@car.Year)</span>
+                                
+                                <div class="mt-1 text-warning small">
+                                    @if (car.Reviews != null && car.Reviews.Any())
+                                    {
+                                        var averageRating = Math.Round(car.Reviews.Average(r => r.Rating), 1);
+                                        <span>⭐ @averageRating / 5 (@car.Reviews.Count Yorum)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted" style="font-size: 11px;">Henüz puanlanmamış</span>
+                                    }
+                                </div>
                             </td>
                             
                             <td>

@@ -19,6 +19,32 @@ public class ProfileController : Controller
         _carService = carService;
         _userService = userService;
     }
+    [HttpGet]
+public async Task<IActionResult> Edit()
+{
+    var userId = int.Parse(User.FindFirst("UserId").Value);
+    var user = await _userService.GetUserByIdAsync(userId);
+    return View(user);
+}
+
+[HttpPost]
+public async Task<IActionResult> Edit(User updatedUser, IFormFile profileImage)
+{
+    var userId = int.Parse(User.FindFirst("UserId").Value);
+    var user = await _userService.GetUserByIdAsync(userId);
+
+    user.Username = updatedUser.Username; // İsim değişikliği (Unique kontrolü eklenebilir)
+    
+    if (profileImage != null)
+    {
+        using var ms = new MemoryStream();
+        await profileImage.CopyToAsync(ms);
+        user.ProfilePicture = ms.ToArray();
+    }
+
+    await _userService.UpdateUserAsync(user);
+    return RedirectToAction("Index");
+}
 
     public async Task<IActionResult> Index()
 {
@@ -35,18 +61,30 @@ public class ProfileController : Controller
 
     if (role == "Admin")
     {
-        // Admin tüm sistemi görür
+        // --- ADMİN v2.0 ANALİTİĞİ ---
+        ViewBag.TotalCompanyProfit = allRentals.Sum(r => r.CommissionAmount); // Şirketin net karı (%10'ların toplamı)
+        ViewBag.TotalGrossVolume = allRentals.Sum(r => r.TotalPrice);        // Platformdaki toplam para dönüşü
+
+        // Pie Chart için satıcı gelir istatistikleri (En çok kazandıranlar)
+        var sellerStats = allRentals
+            .Where(r => r.Car != null && r.Car.Owner != null)
+            .GroupBy(r => r.Car.Owner.Username)
+            .Select(g => new { Username = g.Key, TotalEarned = g.Sum(r => r.SellerAmount) })
+            .OrderByDescending(x => x.TotalEarned)
+            .ToList();
+
+        ViewBag.SellerLabels = sellerStats.Select(s => s.Username).ToList();
+        ViewBag.SellerData = sellerStats.Select(s => s.TotalEarned).ToList();
         ViewBag.AllTransactions = allRentals.OrderByDescending(r => r.StartDate).ToList();
-        ViewBag.TotalSystemVolume = allRentals.Sum(r => r.TotalPrice);
     }
     else
     {
-        // Kiralayıcı ve User sadece kendi işlemlerini görür
+        // --- KİRALAYICI VE USER FİNANS TAKİBİ ---
         var myExpenses = allRentals.Where(r => r.UserId == userId).ToList();
         var myIncomes = allRentals.Where(r => r.Car != null && r.Car.OwnerId == userId).ToList();
 
-        ViewBag.TotalIncome = myIncomes.Sum(r => r.TotalPrice);
-        ViewBag.TotalExpense = myExpenses.Sum(r => r.TotalPrice);
+        ViewBag.TotalIncome = myIncomes.Sum(r => r.SellerAmount); // Artık brüt değil, %90'lık net gelirini görüyor
+        ViewBag.TotalExpense = myExpenses.Sum(r => r.TotalPrice); // Gider her zaman brüttür (tam para ödenir)
         ViewBag.Incomes = myIncomes;
         ViewBag.Expenses = myExpenses;
     }

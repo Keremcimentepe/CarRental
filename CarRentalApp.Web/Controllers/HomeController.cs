@@ -16,6 +16,10 @@ public class HomeController : Controller
         _userService = userService;
         _carService = carService;
     }
+    public IActionResult Privacy()
+{
+    return View();
+}
 
     public async Task<IActionResult> Index(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, int page = 1)
     {

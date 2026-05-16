@@ -11,8 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Sunum katmanı için MVC (Model-View-Controller) servisini ekliyoruz
 builder.Services.AddControllersWithViews();
+
 // Oturum yönetimi ve kimlik doğrulama ayarları
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+
     .AddCookie(options =>
     {
         options.LoginPath = "/Auth/Login"; // Giriş yapılmamışsa yönlendirilecek sayfa
@@ -30,6 +32,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRentalService, RentalService>();
 
 var app = builder.Build();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 // Hata ayıklama ve yönlendirme ayarları
 if (!app.Environment.IsDevelopment())
