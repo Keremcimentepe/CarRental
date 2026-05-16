@@ -29,8 +29,9 @@
                 {
                     <a asp-controller="Car" asp-action="Pending" class="btn btn-warning w-100 fw-bold">🚨 Onay Bekleyenler</a>
                 }
-                <a asp-controller="Profile" asp-action="Index" class="btn btn-info w-100">Finans Takibi (Gelir/Gider)</a>
-                <a asp-controller="Auth" asp-action="Logout" class="btn btn-danger w-100">Çıkış Yap</a>
+                <a asp-controller="Profile" asp-action="Index" class="btn btn-info text-white w-100 fw-bold"><i class="bi bi-clock-history"></i> İşlem & Harcama Geçmişi</a>
+                <a asp-controller="Profile" asp-action="Edit" class="btn btn-secondary w-100 fw-bold"><i class="bi bi-pencil-square"></i> Profilimi Düzenle</a>
+                <a asp-controller="Auth" asp-action="Logout" class="btn btn-danger w-100 fw-bold"><i class="bi bi-x-circle"></i> Çıkış Yap</a>
             </div>
         }
         else

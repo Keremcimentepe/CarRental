@@ -7,4 +7,5 @@ public class User
     public string Password { get; set; } 
     public string Role { get; set; } 
     public byte[]? ProfilePicture { get; set; } // Sonuna ? eklendi
+    public List<Review>? Reviews { get; set; } // Bu kullanıcının yaptığı yorumların listesi
 }

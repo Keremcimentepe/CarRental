@@ -41,11 +41,38 @@
                             <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik ve KVKK</a>
+                            <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Home" asp-action="About">Proje Hakkında</a>
                         </li>
                     </ul>
                     
-                    <button onclick="toggleDarkMode()" class="btn btn-outline-secondary btn-sm ms-2 rounded-pill shadow-sm">
+                    <ul class="navbar-nav align-items-center">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-primary fw-bold" asp-controller="Profile" asp-action="Index">
+                                    <i class="bi bi-wallet2"></i> İşlem & Harcama Geçmişi
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark fw-semibold" asp-controller="Profile" asp-action="Edit">
+                                    <i class="bi bi-person-gear"></i> Profili Güncelle
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-danger fw-semibold" asp-controller="Auth" asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right"></i> Çıkış
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-primary btn-sm px-3 ms-2 rounded-pill shadow-sm" asp-controller="Auth" asp-action="Login">Giriş Yap / Kayıt Ol</a>
+                            </li>
+                        }
+                    </ul>
+
+                    <button onclick="toggleDarkMode()" class="btn btn-outline-secondary btn-sm ms-3 rounded-pill shadow-sm">
                         <i class="bi bi-moon-stars-fill"></i> Tema
                     </button>
                 </div>
@@ -62,7 +89,7 @@
     <footer class="border-top footer text-muted mt-5">
         <div class="container py-3 d-flex justify-content-between align-items-center">
             <span>&copy; 2026 - CarRental Marketplace Platformu</span>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Privacy Policy</a>
+            <a asp-area="" asp-controller="Home" asp-action="About" class="text-decoration-none">Proje Hakkında</a>
         </div>
     </footer>
 
