@@ -24,33 +24,46 @@ public class AuthController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(string username, string password)
+public async Task<IActionResult> Login(string username, string password)
+{
+    // 1. Kullanıcının girdiği şifreyi SHA-256 ile kriptoluyoruz
+    string hashedPassword = "";
+    using (System.Security.Cryptography.SHA256 sha256Hash = System.Security.Cryptography.SHA256.Create())
     {
-        // Business katmanındaki Login metodumuzu çağırıyoruz
-        var user = await _userService.LoginAsync(username, password);
-
-        if (user != null)
+        byte[] bytes = sha256Hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+        System.Text.StringBuilder builder = new System.Text.StringBuilder();
+        for (int i = 0; i < bytes.Length; i++)
         {
-            // Kullanıcı bulunduysa kimlik (Claim) bilgilerini oluşturuyoruz
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role ?? "User"),
-                new Claim("UserId", user.Id.ToString())
-            };
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            // Çerezi oluşturup kullanıcıyı sisteme giriş yaptırıyoruz
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-            return RedirectToAction("Index", "Home");
+            builder.Append(bytes[i].ToString("x2"));
         }
-
-        // Hatalı girişte kullanıcıya mesaj gösterilmesi (Proje isteri)
-        ViewBag.ErrorMessage = "Kullanıcı adı veya şifre hatalı!";
-        return View();
+        hashedPassword = builder.ToString();
     }
+
+    // 2. Kriptolanmış şifre ile Business katmanındaki Login metodumuzu çağırıyoruz
+    var user = await _userService.LoginAsync(username, hashedPassword);
+
+    if (user != null)
+    {
+        // Kullanıcı bulunduysa kimlik (Claim) bilgilerini oluşturuyoruz
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.Role ?? "User"),
+            new Claim("UserId", user.Id.ToString())
+        };
+
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        // Çerezi oluşturup kullanıcıyı sisteme giriş yaptırıyoruz
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+        return RedirectToAction("Index", "Home");
+    }
+
+    // Hatalı girişte kullanıcıya mesaj gösterilmesi (Proje isteri)
+    ViewBag.ErrorMessage = "Kullanıcı adı veya şifre hatalı!";
+    return View();
+}
 
     public async Task<IActionResult> Logout()
     {

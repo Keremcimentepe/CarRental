@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace CarRentalApp.Web.Controllers;
 
@@ -24,7 +26,7 @@ public class UserController : Controller
 
     [HttpPost]
     [HttpPost]
-public async Task<IActionResult> Create(User user, IFormFile profileImage)
+public async Task<IActionResult> Create(User user, IFormFile profileImage, string adminCode)
 {
     // --- 1. KULLANICI ADI VE ŞİFRE UZUNLUK KONTROLÜ ---
     if (user.Username.Length < 3 || user.Username.Length > 20)
@@ -40,6 +42,22 @@ public async Task<IActionResult> Create(User user, IFormFile profileImage)
     }
 
     // --- 2. AYNI İSİMDE KULLANICI VAR MI KONTROLÜ ---
+    // --- ŞİFRE KRİPTOLAMA (SHA-256) ---
+using (SHA256 sha256Hash = SHA256.Create())
+{
+    byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(user.Password));
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < bytes.Length; i++)
+    {
+        builder.Append(bytes[i].ToString("x2"));
+    }
+    if (user.Role == "Admin" && adminCode != "admin")
+    {
+        ViewBag.ErrorMessage = "Hata: Admin hesabı oluşturmak için yetki kodunuz yanlış!";
+        return View(user);
+    }
+    user.Password = builder.ToString(); // Artık veritabanına "123456" yerine karmaşık bir şifre gidecek
+}
     var allUsers = await _userService.GetAllUsersAsync();
     bool isUsernameTaken = allUsers.Any(u => u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase));
     

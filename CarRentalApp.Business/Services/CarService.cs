@@ -30,17 +30,13 @@ public class CarService : ICarService
     public async Task DeleteCarAsync(int id) => await _carRepository.DeleteAsync(id);
 
     // --- ARAMA VE FİLTRELEME (Sadece Onaylı Araçlar) ---
-    public async Task<IEnumerable<Car>> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable)
+    public async Task<(IEnumerable<Car> Cars, int TotalCount)> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, int page, int pageSize)
     {
+        var query = _context.Cars.Include(c => c.Owner).Include(c => c.Rentals).Where(c => c.IsApproved).AsQueryable();
         // Veritabanından araçları, sahiplerini (Owner) ve kiralamalarını (Rentals) da dahil ederek çekiyoruz
-        var query = _context.Cars
-            .Include(c => c.Owner)
-            .Include(c => c.Rentals)
-            .AsQueryable();
-
         // 1. KURAL: Herkesin gördüğü ana sayfada SADECE onaylanmış araçlar listelensin
         query = query.Where(c => c.IsApproved == true); 
-
+        int totalCount = await query.CountAsync();
         // 2. KURAL: Diğer filtrelemeler (Marka, model, fiyat vs.)
         if (!string.IsNullOrWhiteSpace(brand))
             query = query.Where(c => c.Brand.ToLower().Contains(brand.ToLower()));
@@ -57,7 +53,13 @@ public class CarService : ICarService
         if (isAvailable.HasValue)
             query = query.Where(c => c.IsAvailable == isAvailable.Value);
 
-        return await query.ToListAsync();
+        var cars = await query
+        .OrderByDescending(c => c.Id) // Yeniler en üstte
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
+
+        return (cars, totalCount);
     }
 
     // --- ADMİN ONAY SİSTEMİ METOTLARI ---
@@ -80,5 +82,7 @@ public class CarService : ICarService
             car.IsApproved = true;
             await _context.SaveChangesAsync();
         }
+        
     }
+    
 }

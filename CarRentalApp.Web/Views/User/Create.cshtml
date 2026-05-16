@@ -33,11 +33,17 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold text-secondary">Hesap Türü (Rol)</label>
-                            <select asp-for="Role" class="form-select form-select-lg">
+                            <select asp-for="Role" id="roleSelect" class="form-select form-select-lg">
                                 <option value="User">Normal Kullanıcı (Sadece Kiralayabilir)</option>
                                 <option value="Kiralayıcı">Kiralayıcı (Araç Ekleyebilir ve Kiralayabilir)</option>
                                 <option value="Admin">Sistem Yöneticisi</option>
                             </select>
+                        </div>
+
+                        <div class="mb-3 p-3 bg-danger bg-opacity-10 border border-danger rounded" id="adminCodeArea" style="display:none;">
+                            <label class="form-label fw-bold text-danger">Admin Oluşturma Yetki Kodu</label>
+                            <input type="password" name="adminCode" class="form-control border-danger" placeholder="Sadece yetkililer bilebilir..." />
+                            <small class="text-danger mt-1">Bu rol için özel güvenlik kodu gereklidir.</small>
                         </div>
 
                         <div class="mb-4 p-3 bg-light border rounded-3">
@@ -58,3 +64,17 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Rol seçimi değiştiğinde Admin alanını göster/gizle
+        document.getElementById('roleSelect').addEventListener('change', function() {
+            var adminArea = document.getElementById('adminCodeArea');
+            if (this.value === 'Admin') {
+                adminArea.style.display = 'block';
+            } else {
+                adminArea.style.display = 'none';
+            }
+        });
+    </script>
+}

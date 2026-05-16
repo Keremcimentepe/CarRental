@@ -92,8 +92,8 @@
         </div>
     </div>
 
-    <div class="table-responsive shadow-sm">
-        <table class="table table-hover table-bordered align-middle bg-white">
+    <div class="table-responsive shadow-sm mb-4">
+        <table class="table table-hover table-bordered align-middle bg-white mb-0">
             <thead class="table-dark">
                 <tr>
                     <th>Resim</th>
@@ -196,4 +196,24 @@
             </tbody>
         </table>
     </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Araç listesi sayfaları">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" 
+                           asp-route-page="@i" 
+                           asp-route-brand="@ViewBag.Brand" 
+                           asp-route-model="@ViewBag.Model"
+                           asp-route-minPrice="@ViewBag.MinPrice"
+                           asp-route-maxPrice="@ViewBag.MaxPrice"
+                           asp-route-isAvailable="@ViewBag.IsAvailable">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 </div>
