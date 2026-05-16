@@ -72,14 +72,18 @@ public async Task<IActionResult> Create(int carId, DateTime startDate, DateTime 
         return View();
     }
 
-    // Tüm kontrollerden geçtiyse kiralama kaydını oluştur
+    // --- v2.0 FİNANSAL KOMİSYON HESAPLAMASI ---
+    decimal grossTotal = car.DailyPrice * days; // Toplam tutar (Brüt)
+
     var rental = new Rental
     {
         CarId = carId,
         UserId = userId,
         StartDate = startDate,
         EndDate = endDate,
-        TotalPrice = car.DailyPrice * days
+        TotalPrice = grossTotal,
+        CommissionAmount = grossTotal * 0.10m, // %10 Şirket Payı
+        SellerAmount = grossTotal * 0.90m      // %90 Satıcı Kazancı
     };
 
     await _rentalService.RentCarAsync(rental);

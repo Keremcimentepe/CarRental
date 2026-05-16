@@ -31,37 +31,44 @@ public class CarService : ICarService
 
     // --- ARAMA VE FİLTRELEME (Sadece Onaylı Araçlar) ---
     public async Task<(IEnumerable<Car> Cars, int TotalCount)> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, int page, int pageSize)
-    {
-        var query = _context.Cars.Include(c => c.Owner).Include(c => c.Rentals).Where(c => c.IsApproved).AsQueryable();
-        // Veritabanından araçları, sahiplerini (Owner) ve kiralamalarını (Rentals) da dahil ederek çekiyoruz
-        // 1. KURAL: Herkesin gördüğü ana sayfada SADECE onaylanmış araçlar listelensin
-        query = query.Where(c => c.IsApproved == true); 
-        int totalCount = await query.CountAsync();
-        // 2. KURAL: Diğer filtrelemeler (Marka, model, fiyat vs.)
-        if (!string.IsNullOrWhiteSpace(brand))
-            query = query.Where(c => c.Brand.ToLower().Contains(brand.ToLower()));
+{
+    // Veritabanından araçları, sahiplerini (Owner), kiralamalarını (Rentals) ve YORUMLARINI (Reviews) dahil ederek çekiyoruz
+    var query = _context.Cars
+        .Include(c => c.Owner)
+        .Include(c => c.Rentals)
+        .Include(c => c.Reviews) // YENİ: Dinamik yıldız puanlaması için eklendi
+        .AsQueryable();
+    
+    // 1. KURAL: Herkesin gördüğü ana sayfada SADECE onaylanmış araçlar listelensin
+    query = query.Where(c => c.IsApproved == true); 
+    
+    // Toplam onaylı ve filtrelenmiş araç sayısı
+    int totalCount = await query.CountAsync();
 
-        if (!string.IsNullOrWhiteSpace(model))
-            query = query.Where(c => c.Model.ToLower().Contains(model.ToLower()));
+    // 2. KURAL: Diğer filtrelemeler (Marka, model, fiyat vs.)
+    if (!string.IsNullOrWhiteSpace(brand))
+        query = query.Where(c => c.Brand.ToLower().Contains(brand.ToLower()));
 
-        if (minPrice.HasValue)
-            query = query.Where(c => c.DailyPrice >= minPrice.Value);
+    if (!string.IsNullOrWhiteSpace(model))
+        query = query.Where(c => c.Model.ToLower().Contains(model.ToLower()));
 
-        if (maxPrice.HasValue)
-            query = query.Where(c => c.DailyPrice <= maxPrice.Value);
+    if (minPrice.HasValue)
+        query = query.Where(c => c.DailyPrice >= minPrice.Value);
 
-        if (isAvailable.HasValue)
-            query = query.Where(c => c.IsAvailable == isAvailable.Value);
+    if (maxPrice.HasValue)
+        query = query.Where(c => c.DailyPrice <= maxPrice.Value);
 
-        var cars = await query
+    if (isAvailable.HasValue)
+        query = query.Where(c => c.IsAvailable == isAvailable.Value);
+
+    var cars = await query
         .OrderByDescending(c => c.Id) // Yeniler en üstte
         .Skip((page - 1) * pageSize)
         .Take(pageSize)
         .ToListAsync();
 
-        return (cars, totalCount);
-    }
-
+    return (cars, totalCount);
+}
     // --- ADMİN ONAY SİSTEMİ METOTLARI ---
     
     // Onay bekleyen araçları listeler

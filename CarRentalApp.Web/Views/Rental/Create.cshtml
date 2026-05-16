@@ -59,6 +59,67 @@
                             <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Vazgeç ve Ana Sayfaya Dön</a>
                         </div>
                     </form>
+                    <div class="card mt-4 shadow border-0">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-chat-left-text"></i> Araç Değerlendirmeleri & Yorumlar</h5>
+    </div>
+    <div class="card-body">
+        
+        <form asp-controller="Review" asp-action="Create" method="post" class="mb-4 p-3 bg-light rounded border">
+            <input type="hidden" name="carId" value="@car.Id" />
+            <h6 class="fw-bold mb-3">Bu Aracı Değerlendirin</h6>
+            
+            <div class="row align-items-center mb-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold mb-0">Puanınız (Yıldız):</label>
+                </div>
+                <div class="col-md-8">
+                    <select name="rating" class="form-select text-warning fw-bold" required>
+                        <option value="5" class="text-warning">⭐⭐⭐⭐⭐ (5 - Mükemmel)</option>
+                        <option value="4" class="text-warning">⭐⭐⭐⭐ (4 - Çok İyi)</option>
+                        <option value="3" class="text-warning">⭐⭐⭐ (3 - Orta)</option>
+                        <option value="2" class="text-warning">⭐⭐ (2 - Kötü)</option>
+                        <option value="1" class="text-warning">⭐ (1 - Çok Kötü)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Yorumunuz</label>
+                <textarea name="comment" class="form-control" rows="3" placeholder="Araç durumu, temizliği ve sürüş konforu hakkında yorum yapın..." required minlength="5"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-sm">Yorumu Gönder</button>
+        </form>
+
+        <h6 class="fw-bold mb-3">Son Yorumlar</h6>
+        @if (car.Reviews != null && car.Reviews.Any())
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var review in car.Reviews.OrderByDescending(r => r.CreatedAt))
+                {
+                    <div class="list-group-item px-0 py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-primary">@review.User?.Username</span>
+                            <small class="text-muted">@review.CreatedAt.ToShortDateString()</small>
+                        </div>
+                        <div class="text-warning mb-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= review.Rating) { <span>★</span> } else { <span class="text-muted">☆</span> }
+                            }
+                        </div>
+                        <p class="mb-0 text-dark" style="font-size: 14px;">@review.Comment</p>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted small text-center my-4">Bu araç için henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+        }
+    </div>
+</div>
                 </div>
             </div>
         </div>
