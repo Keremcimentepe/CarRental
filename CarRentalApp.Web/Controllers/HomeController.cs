@@ -16,7 +16,7 @@ public class HomeController : Controller
         _userService = userService;
         _carService = carService;
     }
-    public IActionResult Privacy()
+    public IActionResult About()
 {
     return View();
 }

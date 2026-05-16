@@ -1,6 +1,3 @@
-
-
-
 using Microsoft.AspNetCore.Authentication.Cookies;
 using CarRentalApp.Business.Services;
 using CarRentalApp.DataAccess.Repositories;
@@ -14,7 +11,6 @@ builder.Services.AddControllersWithViews();
 
 // Oturum yönetimi ve kimlik doğrulama ayarları
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-
     .AddCookie(options =>
     {
         options.LoginPath = "/Auth/Login"; // Giriş yapılmamışsa yönlendirilecek sayfa
@@ -23,16 +19,21 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // Veritabanı bağlamını (DbContext) ve PostgreSQL bağlantısını ayarlıyoruz
 builder.Services.AddDbContext<AppDbContext>(options =>
-
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-// Repository pattern'i sisteme tanıtıyoruz
+
+// Repository pattern'i ve Servisleri sisteme tanıtıyoruz
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ICarService, CarService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRentalService, RentalService>();
 
-var app = builder.Build();
+// YENİ EKLENEN SERVİS (Tam olması gerektiği yerde!)
 builder.Services.AddScoped<IReviewService, ReviewService>();
+
+// --- UYGULAMA İNŞA EDİLİYOR ---
+// DİKKAT: Bundan sonra artık 'builder.Services' KULLANILAMAZ!
+var app = builder.Build(); 
+
 
 // Hata ayıklama ve yönlendirme ayarları
 if (!app.Environment.IsDevelopment())

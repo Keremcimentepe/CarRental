@@ -14,9 +14,9 @@ public class Car
     
     public int OwnerId { get; set; } 
     public User Owner { get; set; }
+    public List<Review>? Reviews { get; set; } // Bu araca ait yorumların listesi
 
     // EKSİK OLAN SATIR BURASI (Aracın kiralama geçmişi)
     public ICollection<Rental> Rentals { get; set; } 
-    public List<Review> Reviews { get; set; }
     public bool IsApproved { get; set; } = false; // Varsayılan olarak onay bekliyor
 }

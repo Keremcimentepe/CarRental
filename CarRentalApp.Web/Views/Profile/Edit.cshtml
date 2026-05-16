@@ -1,0 +1,48 @@
+@model CarRentalApp.Models.Entities.User
+@{
+    ViewData["Title"] = "Profili Düzenle";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-gear"></i> Profil Bilgilerini Güncelle</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Profile" asp-action="Edit" method="post" enctype="multipart/form-data">
+
+                        <div class="mb-4 text-center">
+                            @if (Model.ProfilePicture != null && Model.ProfilePicture.Length > 0)
+                            {
+                                <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.ProfilePicture)" class="rounded-circle img-thumbnail shadow-sm mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="Profil Resmi" />
+                            }
+                            else
+                            {
+                                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="rounded-circle img-thumbnail shadow-sm mb-2" style="width: 120px; height: 120px; object-fit: cover;" alt="Varsayılan Profil" />
+                            }
+                            <div class="small text-muted">Mevcut Fotoğrafınız</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Kullanıcı Adı</label>
+                            <input asp-for="Username" class="form-control" required minlength="3" maxlength="20" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Yeni Profil Resmi (İsteğe Bağlı)</label>
+                            <input type="file" name="profileImage" class="form-control" accept="image/*" />
+                            <small class="text-muted">Resminizi değiştirmek istemiyorsanız bu alanı boş bırakın.</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Değişiklikleri Kaydet</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">İptal ve Geri Dön</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
