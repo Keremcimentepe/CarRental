@@ -1,0 +1,133 @@
+@model CarRentalApp.Models.Entities.Car
+@{
+    ViewData["Title"] = $"{Model.Brand} {Model.Model} Detayı";
+    var role = ViewBag.CurrentUserRole as string;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Model.Brand @Model.Model <span class="text-muted">(@Model.Year)</span></h2>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Listeye Dön</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                @if (Model.Image != null && Model.Image.Length > 0)
+                {
+                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Image)" class="card-img-top" style="height: 400px; object-fit: cover;" alt="Araç Resmi" />
+                }
+                else
+                {
+                    <div class="d-flex align-items-center justify-content-center bg-light" style="height: 400px;">
+                        <span class="text-muted fw-bold">Görsel Bulunamadı</span>
+                    </div>
+                }
+            </div>
+
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="card-header bg-dark text-white fw-bold">
+                    <i class="bi bi-chat-left-text"></i> Kullanıcı Yorumları ve Değerlendirmeler
+                </div>
+                <div class="card-body">
+                    
+                    @if (role != "Admin")
+                    {
+                        <form asp-controller="Review" asp-action="Create" method="post" class="mb-4 p-3 bg-light rounded border">
+                            <input type="hidden" name="carId" value="@Model.Id" />
+                            <h6 class="fw-bold mb-3">Bu Aracı Değerlendirin</h6>
+                            
+                            <div class="row align-items-center mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold mb-0">Puanınız:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <select name="rating" class="form-select text-warning fw-bold" required>
+                                        <option value="5">⭐⭐⭐⭐⭐ (5 - Mükemmel)</option>
+                                        <option value="4">⭐⭐⭐⭐ (4 - Çok İyi)</option>
+                                        <option value="3">⭐⭐⭐ (3 - Orta)</option>
+                                        <option value="2">⭐⭐ (2 - Kötü)</option>
+                                        <option value="1">⭐ (1 - Çok Kötü)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <textarea name="comment" class="form-control" rows="2" placeholder="Araç hakkında düşünceleriniz..." required minlength="5"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Yorumu Gönder</button>
+                        </form>
+                    }
+
+                    @if (Model.Reviews != null && Model.Reviews.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
+                            {
+                                <div class="list-group-item px-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold text-primary">@review.User?.Username</span>
+                                        <small class="text-muted">@review.CreatedAt.ToShortDateString()</small>
+                                    </div>
+                                    <div class="text-warning mb-2">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= review.Rating) { <span>★</span> } else { <span class="text-muted">☆</span> }
+                                        }
+                                    </div>
+                                    <p class="mb-0 text-dark">@review.Comment</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center my-4">Bu araç için henüz yorum yapılmamış.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h4 class="text-success fw-bold mb-3">@Model.DailyPrice.ToString("C") <small class="text-muted fs-6">/ Gün</small></h4>
+                    <p><strong>Araç Sahibi:</strong> <span class="badge bg-secondary">@Model.Owner?.Username</span></p>
+
+                    <hr />
+
+                    @if (role == "Admin")
+                    {
+                        <div class="alert alert-info">Adminler araç kiralayamaz. Sadece sistemi yönetir.</div>
+                    }
+                    else if (Model.IsAvailable)
+                    {
+                        <h5 class="fw-bold mb-3">Hemen Kirala</h5>
+                        <form asp-controller="Rental" asp-action="Create" method="post">
+                            <input type="hidden" name="carId" value="@Model.Id" />
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Alış Tarihi</label>
+                                <input type="date" name="startDate" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Teslim Tarihi</label>
+                                <input type="date" name="endDate" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 fw-bold btn-lg">Kirala</button>
+                        </form>
+                    }
+                    else
+                    {
+                        var lastRental = Model.Rentals?.OrderByDescending(r => r.EndDate).FirstOrDefault();
+                        <div class="alert alert-danger text-center">
+                            <i class="bi bi-x-circle fs-1 d-block mb-2"></i>
+                            <strong>Şu Anda Kirada!</strong><br />
+                            Bu araç geçici olarak kullanılamıyor.<br />
+                            <small>Tahmini Dönüş: @(lastRental?.EndDate.ToShortDateString() ?? "Bilinmiyor")</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

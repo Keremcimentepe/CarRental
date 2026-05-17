@@ -21,7 +21,15 @@ public class CarService : ICarService
 
     public async Task<IEnumerable<Car>> GetAllCarsAsync() => await _carRepository.GetAllAsync();
     
-    public async Task<Car> GetCarByIdAsync(int id) => await _carRepository.GetByIdAsync(id);
+    public async Task<Car> GetCarByIdAsync(int id)
+{
+    return await _context.Cars
+        .Include(c => c.Owner)
+        .Include(c => c.Rentals)
+        .Include(c => c.Reviews) // Yorumları dahil et
+            .ThenInclude(r => r.User) // Yorumu yapan kullanıcıları da dahil et (İsimleri yazsın diye)
+        .FirstOrDefaultAsync(c => c.Id == id);
+}
     
     public async Task AddCarAsync(Car car) => await _carRepository.AddAsync(car);
     
