@@ -6,8 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Sunum katmanı için MVC (Model-View-Controller) servisini ekliyoruz
-builder.Services.AddControllersWithViews();
+// Sunum katmanı için MVC servisini ekliyoruz ve DÖNGÜ KIRICIYI (IgnoreCycles) aktif ediyoruz
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 
 // Oturum yönetimi ve kimlik doğrulama ayarları
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -26,14 +30,11 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ICarService, CarService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRentalService, RentalService>();
-
-// YENİ EKLENEN SERVİS (Tam olması gerektiği yerde!)
 builder.Services.AddScoped<IReviewService, ReviewService>();
 
 // --- UYGULAMA İNŞA EDİLİYOR ---
 // DİKKAT: Bundan sonra artık 'builder.Services' KULLANILAMAZ!
 var app = builder.Build(); 
-
 
 // Hata ayıklama ve yönlendirme ayarları
 if (!app.Environment.IsDevelopment())
@@ -44,12 +45,15 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+// Kimlik Doğrulama ve Yetkilendirme Orta Katmanları
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Statik dosyaların (CSS, JS, Resimler) kullanımını açıyoruz
 app.MapStaticAssets(); 
 
+// Varsayılan sayfa yönlendirmesi (Routing)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
