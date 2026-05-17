@@ -15,5 +15,5 @@ public interface ICarService
     Task ApproveCarAsync(int id);
     
     // Proje isterindeki "Gelişmiş Arama İşlemi" için güncellenen metodumuz
-    Task<(IEnumerable<Car> Cars, int TotalCount)> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, int page, int pageSize);
+    Task<(IEnumerable<Car> Cars, int TotalCount)> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, int page, int pageSize,string sortOrder);
 }

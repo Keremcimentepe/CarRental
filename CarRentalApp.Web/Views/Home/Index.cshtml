@@ -29,9 +29,6 @@
                 {
                     <a asp-controller="Car" asp-action="Pending" class="btn btn-warning w-100 fw-bold">🚨 Onay Bekleyenler</a>
                 }
-                <a asp-controller="Profile" asp-action="Index" class="btn btn-info text-white w-100 fw-bold"><i class="bi bi-clock-history"></i> İşlem & Harcama Geçmişi</a>
-                <a asp-controller="Profile" asp-action="Edit" class="btn btn-secondary w-100 fw-bold"><i class="bi bi-pencil-square"></i> Profilimi Düzenle</a>
-                <a asp-controller="Auth" asp-action="Logout" class="btn btn-danger w-100 fw-bold"><i class="bi bi-x-circle"></i> Çıkış Yap</a>
             </div>
         }
         else
@@ -51,9 +48,9 @@
     <div class="row mb-3 align-items-center">
         <div class="col-md-12 d-flex align-items-center justify-content-between">
             <h3 class="mb-0">Araç Listesi</h3>
-            @if (User.Identity.IsAuthenticated && currentUser?.Role == "Kiralayıcı")
+            @if (User.Identity.IsAuthenticated && (currentUser?.Role == "Kiralayıcı" || currentUser?.Role == "Admin"))
             {
-                <a asp-controller="Car" asp-action="Create" class="btn btn-success">+ Yeni Araç Ekle</a>
+                <a asp-controller="Car" asp-action="Create" class="btn btn-success fw-bold"><i class="bi bi-plus-circle"></i> Yeni Araç Ekle</a>
             }
         </div>
     </div>
@@ -70,23 +67,32 @@
                     <input type="text" name="model" value="@ViewBag.Model" class="form-control" placeholder="Örn: M5">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label small fw-bold">Min Fiyat</label>
-                    <input type="number" name="minPrice" value="@ViewBag.MinPrice" class="form-control" placeholder="0">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small fw-bold">Max Fiyat</label>
-                    <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" class="form-control" placeholder="5000">
+                    <label class="form-label small fw-bold">Min / Max Fiyat</label>
+                    <div class="input-group">
+                        <input type="number" name="minPrice" value="@ViewBag.MinPrice" class="form-control" placeholder="Min">
+                        <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" class="form-control" placeholder="Max">
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small fw-bold">Müsaitlik</label>
                     <select name="isAvailable" class="form-select">
                         <option value="">Tümü</option>
-                        <option value="true" selected="@(ViewBag.IsAvailable == true ? "selected" : null)">Sadece Müsaitler</option>
+                        <option value="true" selected="@(ViewBag.IsAvailable == true ? "selected" : null)">Müsaitler</option>
                         <option value="false" selected="@(ViewBag.IsAvailable == false ? "selected" : null)">Kiradakiler</option>
                     </select>
                 </div>
-                <div class="col-md-2 d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Filtrele</button>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Sıralama</label>
+                    <select name="sortOrder" class="form-select">
+                        <option value="">En Yeniler</option>
+                        <option value="price_asc" selected="@(ViewBag.SortOrder == "price_asc" ? "selected" : null)">Fiyat (Artan)</option>
+                        <option value="price_desc" selected="@(ViewBag.SortOrder == "price_desc" ? "selected" : null)">Fiyat (Azalan)</option>
+                        <option value="name_asc" selected="@(ViewBag.SortOrder == "name_asc" ? "selected" : null)">Marka (A-Z)</option>
+                        <option value="name_desc" selected="@(ViewBag.SortOrder == "name_desc" ? "selected" : null)">Marka (Z-A)</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid gap-1">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Bul</button>
                     <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">Temizle</a>
                 </div>
             </form>
@@ -99,7 +105,7 @@
                 <tr>
                     <th>Resim</th>
                     <th>Araç Bilgisi</th>
-                    <th>Yükleyen (Sahibi)</th>
+                    <th>Yükleyen</th>
                     <th>Günlük Fiyat</th>
                     <th>Durum / Müsaitlik</th>
                     <th>İşlemler</th>
@@ -167,7 +173,7 @@
                             <td>
                                 @if (!User.Identity.IsAuthenticated)
                                 {
-                                    <a asp-controller="Auth" asp-action="Login" class="btn btn-sm btn-outline-primary">Kiralamak İçin Giriş Yap</a>
+                                    <a asp-controller="Auth" asp-action="Login" class="btn btn-sm btn-outline-primary">Giriş Yap</a>
                                 }
                                 else
                                 {
@@ -223,8 +229,8 @@
                            asp-route-model="@ViewBag.Model"
                            asp-route-minPrice="@ViewBag.MinPrice"
                            asp-route-maxPrice="@ViewBag.MaxPrice"
-                           asp-route-isAvailable="@ViewBag.IsAvailable">@i</a>
-                    </li>
+                           asp-route-isAvailable="@ViewBag.IsAvailable"
+                           asp-route-sortOrder="@ViewBag.SortOrder">@i</a> </li>
                 }
             </ul>
         </nav>

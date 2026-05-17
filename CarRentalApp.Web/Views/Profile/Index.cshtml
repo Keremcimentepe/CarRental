@@ -1,48 +1,62 @@
 @{
-    ViewData["Title"] = "Finans ve Takip";
-    string role = ViewBag.Role as string;
+    ViewData["Title"] = "İşlem ve Harcama Geçmişi";
+    var role = ViewBag.Role as string;
 }
 
 <div class="container mt-4">
-    
+    <h2><i class="bi bi-wallet2"></i> İşlem ve Harcama Geçmişi</h2>
+    <hr />
+
     @if (role == "Admin")
     {
-        <h2 class="mb-4">Sistem Genel İşlem Geçmişi</h2>
-        <div class="card bg-dark text-white mb-4 shadow">
-            <div class="card-body">
-                <h5>Platform Toplam Hacmi</h5>
-                <h2>@ViewBag.TotalSystemVolume.ToString("C")</h2>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card text-white bg-dark shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-graph-up-arrow"></i> Platform Brüt Hacmi</h5>
+                        <h2 class="card-text">@((ViewBag.TotalGrossVolume ?? 0).ToString("C"))</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card text-white bg-success shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-bank"></i> Şirket Net Karı (%10)</h5>
+                        <h2 class="card-text">@((ViewBag.TotalCompanyProfit ?? 0).ToString("C"))</h2>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="row mb-5">
-            <div class="col-md-6 offset-md-3">
-                <canvas id="financeChart"></canvas>
-            </div>
-        </div>
-
+        <h4 class="mt-4">Tüm Sistem İşlemleri</h4>
         <div class="table-responsive shadow-sm">
-            <table class="table table-hover table-bordered bg-white">
+            <table class="table table-hover table-bordered bg-white align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Araç</th>
-                        <th>Sahibi (Kiralayan)</th>
-                        <th>Müşteri (Kiralayan)</th>
-                        <th>Başlangıç</th>
-                        <th>Bitiş</th>
-                        <th>Tutar</th>
+                        <th>Tarih</th>
+                        <th>Kiralayan (Müşteri)</th>
+                        <th>Araç Sahibi (Satıcı)</th>
+                        <th>Brüt Tutar</th>
+                        <th>Şirket Karı</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach(var r in ViewBag.AllTransactions) {
-                        <tr>
-                            <td><strong>@r.Car.Brand</strong> @r.Car.Model</td>
-                            <td><span class="badge bg-secondary">@r.Car.Owner.Username</span></td>
-                            <td><span class="badge bg-primary">@r.User.Username</span></td>
-                            <td>@r.StartDate.ToShortDateString()</td>
-                            <td>@r.EndDate.ToShortDateString()</td>
-                            <td class="text-success fw-bold">@r.TotalPrice.ToString("C")</td>
-                        </tr>
+                    @if (ViewBag.AllTransactions != null)
+                    {
+                        foreach (var item in ViewBag.AllTransactions)
+                        {
+                            <tr>
+                                <td>@item.StartDate.ToShortDateString()</td>
+                                <td><span class="badge bg-secondary">@item.User.Username</span></td>
+                                <td><span class="badge bg-info text-dark">@item.Car.Owner.Username</span></td>
+                                <td>@item.TotalPrice.ToString("C")</td>
+                                <td class="text-success fw-bold">+@item.CommissionAmount.ToString("C")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="text-center text-muted">Sistemde henüz işlem bulunmamaktadır.</td></tr>
                     }
                 </tbody>
             </table>
@@ -50,99 +64,125 @@
     }
     else
     {
-        <h2 class="mb-4">Finansal Durumum</h2>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card text-white bg-danger shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-cart-dash"></i> Toplam Harcamalarım</h5>
+                        <h2 class="card-text">@((ViewBag.TotalExpense ?? 0).ToString("C"))</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card text-white bg-success shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-cash-coin"></i> Toplam Gelirlerim (Araçlarımdan)</h5>
+                        <h2 class="card-text">@((ViewBag.TotalIncome ?? 0).ToString("C"))</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-6">
-                <div class="card bg-success text-white mb-3 shadow">
-                    <div class="card-body">
-                        <h5>Toplam Gelir (Kiralattığım)</h5>
-                        <h2>@ViewBag.TotalIncome.ToString("C")</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card bg-danger text-white mb-3 shadow">
-                    <div class="card-body">
-                        <h5>Toplam Gider (Kiraladığım)</h5>
-                        <h2>@ViewBag.TotalExpense.ToString("C")</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-5 mt-4">
-            <div class="col-md-4 offset-md-4">
-                <canvas id="financeChart"></canvas>
-            </div>
-        </div>
-
-        @if (role == "Kiralayıcı")
-        {
-            <h4 class="mt-4">Gelir Detayları (Benim Araçlarım)</h4>
-            <table class="table table-striped bg-white shadow-sm">
-                <thead class="table-success"><tr><th>Araç</th><th>Kiralayan</th><th>Tarih</th><th>Kazanç</th></tr></thead>
-                <tbody>
-                    @foreach(var r in ViewBag.Incomes) {
-                        <tr><td>@r.Car.Brand</td><td>@r.User.Username</td><td>@r.StartDate.ToShortDateString()</td><td>@r.TotalPrice.ToString("C")</td></tr>
+                <h5 class="text-danger">Kiraladığım Araçlar (Harcamalar)</h5>
+                <ul class="list-group shadow-sm">
+                    @if (ViewBag.Expenses != null)
+                    {
+                        foreach (var item in ViewBag.Expenses)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@item.Car.Brand @item.Car.Model</strong><br>
+                                    <small class="text-muted">@item.StartDate.ToShortDateString() - @item.EndDate.ToShortDateString()</small>
+                                </div>
+                                <span class="badge bg-danger rounded-pill">-@item.TotalPrice.ToString("C")</span>
+                            </li>
+                        }
                     }
-                </tbody>
-            </table>
-        }
+                </ul>
+            </div>
 
-        <h4 class="mt-4">Gider Detayları (Kiraladıklarım)</h4>
-        <table class="table table-striped bg-white shadow-sm mb-5">
-            <thead class="table-danger"><tr><th>Araç</th><th>Sahibi</th><th>Tarih</th><th>Maliyet</th></tr></thead>
-            <tbody>
-                @foreach(var r in ViewBag.Expenses) {
-                    <tr><td>@r.Car.Brand</td><td>@r.Car.Owner.Username</td><td>@r.StartDate.ToShortDateString()</td><td>@r.TotalPrice.ToString("C")</td></tr>
-                }
-            </tbody>
-        </table>
+            <div class="col-md-6">
+                <h5 class="text-success">Kiralanan Araçlarım (Gelirler)</h5>
+                <ul class="list-group shadow-sm">
+                    @if (ViewBag.Incomes != null)
+                    {
+                        foreach (var item in ViewBag.Incomes)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@item.Car.Brand @item.Car.Model</strong><br>
+                                    <small class="text-muted">Kiralayan: @item.User.Username</small>
+                                </div>
+                                <span class="badge bg-success rounded-pill">+@item.SellerAmount.ToString("C")</span>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
     }
+
+    <div class="row mt-5 mb-5">
+        <div class="col-md-6 offset-md-3 text-center">
+            <h4 class="mb-3">Finansal Özet Grafiği</h4>
+            <canvas id="financeChart"></canvas>
+        </div>
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var ctx = document.getElementById('financeChart').getContext('2d');
-        
-        var role = '@role';
-        var chartLabels = [];
-        var chartData = [];
-        var chartColors = [];
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var role = '@role';
+            var ctx = document.getElementById('financeChart').getContext('2d');
+            
+            var chartLabels = [];
+            var chartData = [];
+            var chartColors = [];
 
-        if (role === 'Admin') {
-            chartLabels = ['Platform Toplam Hacmi'];
-            // C# Decimal değerlerini JS Float'a çeviriyoruz
-            var totalVol = parseFloat('@ViewBag.TotalSystemVolume'.replace(',', '.'));
-            chartData = [totalVol];
-            chartColors = ['#212529'];
-        } else {
-            chartLabels = ['Toplam Gelir', 'Toplam Gider'];
-            // C# Decimal değerlerini JS Float'a çeviriyoruz
-            var totalInc = parseFloat('@ViewBag.TotalIncome'.replace(',', '.'));
-            var totalExp = parseFloat('@ViewBag.TotalExpense'.replace(',', '.'));
-            chartData = [totalInc, totalExp];
-            chartColors = ['#198754', '#dc3545'];
-        }
-
-        var financeChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    data: chartData,
-                    backgroundColor: chartColors,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    title: { display: true, text: 'Finansal Dağılım Grafiği', font: { size: 16 } }
+            if (role === 'Admin') {
+                // Admin ise Satıcıların Gelir Dağılımını C#'tan çekiyoruz
+                chartLabels = @Html.Raw(Json.Serialize(ViewBag.SellerLabels ?? new List<string>()));
+                chartData = @Html.Raw(Json.Serialize(ViewBag.SellerData ?? new List<decimal>()));
+                
+                // Rastgele renk ataması
+                chartColors = ['#0dcaf0', '#ffc107', '#fd7e14', '#20c997', '#6f42c1', '#d63384'];
+                
+                if(chartLabels.length === 0) {
+                    chartLabels = ['Henüz Veri Yok'];
+                    chartData = [1];
+                    chartColors = ['#e9ecef'];
                 }
+            } else {
+                // Normal kullanıcı ise Gelir/Gider Pastası
+                chartLabels = ['Toplam Gelir', 'Toplam Harcama'];
+                chartData = [
+                    @(ViewBag.TotalIncome != null ? ViewBag.TotalIncome.ToString().Replace(",", ".") : "0"), 
+                    @(ViewBag.TotalExpense != null ? ViewBag.TotalExpense.ToString().Replace(",", ".") : "0")
+                ];
+                chartColors = ['#198754', '#dc3545'];
             }
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: chartData,
+                        backgroundColor: chartColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
         });
-    });
-</script>
+    </script>
+}
