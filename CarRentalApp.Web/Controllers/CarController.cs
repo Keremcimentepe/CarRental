@@ -125,6 +125,7 @@ if (car.Year < 1980 || car.Year > 2026)
     return View(car);
 }
 
+
 if (car.DailyPrice < 1000 || car.DailyPrice > 100000)
 {
     ViewBag.ErrorMessage = "Araç kiralama fiyatı günlük 1.000 ₺ ile 100.000 ₺ arasında olmalıdır!";
@@ -177,4 +178,19 @@ if (car.DailyPrice < 1000 || car.DailyPrice > 100000)
         
         return RedirectToAction("Index", "Home");
     }
+    [Authorize]
+public async Task<IActionResult> Details(int id)
+{
+    var car = await _carService.GetCarByIdAsync(id);
+    
+    if (car == null) 
+    {
+        return NotFound();
+    }
+
+    // Arayüzde yetki kontrolü yapabilmek için View'a Rol bilgisini gönderiyoruz
+    ViewBag.CurrentUserRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+    return View(car);
+}
 }

@@ -173,21 +173,11 @@
                             <td>
                                 @if (!User.Identity.IsAuthenticated)
                                 {
-                                    <a asp-controller="Auth" asp-action="Login" class="btn btn-sm btn-outline-primary">Giriş Yap</a>
+                                    <a asp-controller="Auth" asp-action="Login" class="btn btn-sm btn-outline-primary">İncelemek İçin Giriş Yap</a>
                                 }
                                 else
                                 {
-                                    @if (currentUser?.Role != "Admin")
-                                    {
-                                        if (car.IsAvailable)
-                                        {
-                                            <a asp-controller="Rental" asp-action="Create" asp-route-carId="@car.Id" class="btn btn-sm btn-primary">Kirala</a>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-sm btn-secondary" disabled>Kirada</button>
-                                        }
-                                    }
+                                    <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-sm btn-info text-white"><i class="bi bi-search"></i> İncele</a>
 
                                     @if (currentUser?.Role == "Admin" || (currentUser?.Role == "Kiralayıcı" && car.OwnerId == currentUser?.Id))
                                     {
@@ -230,7 +220,8 @@
                            asp-route-minPrice="@ViewBag.MinPrice"
                            asp-route-maxPrice="@ViewBag.MaxPrice"
                            asp-route-isAvailable="@ViewBag.IsAvailable"
-                           asp-route-sortOrder="@ViewBag.SortOrder">@i</a> </li>
+                           asp-route-sortOrder="@ViewBag.SortOrder">@i</a> 
+                    </li>
                 }
             </ul>
         </nav>
