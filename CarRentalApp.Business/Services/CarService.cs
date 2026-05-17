@@ -30,7 +30,7 @@ public class CarService : ICarService
     public async Task DeleteCarAsync(int id) => await _carRepository.DeleteAsync(id);
 
     // --- ARAMA VE FİLTRELEME (Sadece Onaylı Araçlar) ---
-    public async Task<(IEnumerable<Car> Cars, int TotalCount)> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, int page, int pageSize)
+    public async Task<(IEnumerable<Car> Cars, int TotalCount)> SearchCarsAsync(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, int page, int pageSize, string sortOrder)
 {
     // Veritabanından araçları, sahiplerini (Owner), kiralamalarını (Rentals) ve YORUMLARINI (Reviews) dahil ederek çekiyoruz
     var query = _context.Cars
@@ -41,9 +41,6 @@ public class CarService : ICarService
     
     // 1. KURAL: Herkesin gördüğü ana sayfada SADECE onaylanmış araçlar listelensin
     query = query.Where(c => c.IsApproved == true); 
-    
-    // Toplam onaylı ve filtrelenmiş araç sayısı
-    int totalCount = await query.CountAsync();
 
     // 2. KURAL: Diğer filtrelemeler (Marka, model, fiyat vs.)
     if (!string.IsNullOrWhiteSpace(brand))
@@ -61,8 +58,20 @@ public class CarService : ICarService
     if (isAvailable.HasValue)
         query = query.Where(c => c.IsAvailable == isAvailable.Value);
 
+    // --- YENİ EKLENEN SIRALAMA MANTIĞI ---
+    query = sortOrder switch
+    {
+        "price_asc" => query.OrderBy(c => c.DailyPrice),
+        "price_desc" => query.OrderByDescending(c => c.DailyPrice),
+        "name_asc" => query.OrderBy(c => c.Brand).ThenBy(c => c.Model),
+        "name_desc" => query.OrderByDescending(c => c.Brand).ThenByDescending(c => c.Model),
+        _ => query.OrderByDescending(c => c.Id), // Varsayılan: En son eklenenler
+    };
+
+    // Toplam onaylı ve filtrelenmiş araç sayısı
+    int totalCount = await query.CountAsync();
+
     var cars = await query
-        .OrderByDescending(c => c.Id) // Yeniler en üstte
         .Skip((page - 1) * pageSize)
         .Take(pageSize)
         .ToListAsync();

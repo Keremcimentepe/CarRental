@@ -21,36 +21,37 @@ public class HomeController : Controller
     return View();
 }
 
-    public async Task<IActionResult> Index(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, int page = 1)
+    public async Task<IActionResult> Index(string brand, string model, decimal? minPrice, decimal? maxPrice, bool? isAvailable, string sortOrder, int page = 1)
+{
+    int pageSize = 6; // Bir sayfada gösterilecek araç sayısı
+
+    // 1. Servisten hem araç listesini hem de toplam onaylı araç sayısını (ve sıralamayı) alıyoruz
+    var (cars, totalCount) = await _carService.SearchCarsAsync(brand, model, minPrice, maxPrice, isAvailable, page, pageSize, sortOrder);
+
+    // 2. Sayfalama matematiği ve ViewBag atamaları
+    ViewBag.CurrentPage = page;
+    ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+    ViewBag.Brand = brand;
+    ViewBag.Model = model;
+    ViewBag.MinPrice = minPrice;
+    ViewBag.MaxPrice = maxPrice;
+    ViewBag.IsAvailable = isAvailable;
+    ViewBag.SortOrder = sortOrder; // Sıralama tercihini sayfada tutmak için
+
+    // 3. Giriş yapan kullanıcının bilgilerini çekme (Misafirse null kalır)
+    if (User.Identity.IsAuthenticated)
     {
-        int pageSize = 6; // Bir sayfada gösterilecek araç sayısı
-
-        // 1. Servisten hem araç listesini hem de toplam onaylı araç sayısını alıyoruz
-        var (cars, totalCount) = await _carService.SearchCarsAsync(brand, model, minPrice, maxPrice, isAvailable, page, pageSize);
-
-        // 2. Sayfalama matematiği ve ViewBag atamaları
-        ViewBag.CurrentPage = page;
-        ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        ViewBag.Brand = brand;
-        ViewBag.Model = model;
-        ViewBag.MinPrice = minPrice;
-        ViewBag.MaxPrice = maxPrice;
-        ViewBag.IsAvailable = isAvailable;
-
-        // 3. Giriş yapan kullanıcının bilgilerini çekme (Misafirse null kalır)
-        if (User.Identity.IsAuthenticated)
+        var userIdString = User.FindFirst("UserId")?.Value;
+        if (int.TryParse(userIdString, out int userId))
         {
-            var userIdString = User.FindFirst("UserId")?.Value;
-            if (int.TryParse(userIdString, out int userId))
-            {
-                ViewBag.CurrentUser = await _userService.GetUserByIdAsync(userId);
-            }
+            ViewBag.CurrentUser = await _userService.GetUserByIdAsync(userId);
         }
-        else
-        {
-            ViewBag.CurrentUser = null; 
-        }
-
-        return View(cars);
     }
+    else
+    {
+        ViewBag.CurrentUser = null; 
+    }
+
+    return View(cars);
+}
 }
